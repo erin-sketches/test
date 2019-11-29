@@ -1,7 +1,7 @@
 import * as THREE from './three.module.js';
 
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+var camera = new THREE.PerspectiveCamera( 50, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -24,3 +24,16 @@ var animate = function () {
 };
 
 animate();
+
+window.addEventListener('DOMContentLoaded',() => {
+	let fov_slider = document.getElementById('fov');
+	fov_slider.addEventListener('input', (e) => {
+		camera.fov = fov_slider.value;
+		camera.updateProjectionMatrix();
+	});
+})
+window.addEventListener('resize', () => {
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth/window.innerHeight;
+	camera.updateProjectionMatrix();
+});
