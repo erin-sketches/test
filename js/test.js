@@ -1,4 +1,5 @@
-import * as THREE from './three.module.js';
+import * as THREE from './ext/three.module.js';
+import * as dat from './ext/dat.gui.module.js';
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 50, window.innerWidth/window.innerHeight, 0.1, 1000 );
@@ -14,23 +15,44 @@ scene.add( cube );
 
 camera.position.z = 5;
 
+var render = function () {
+	renderer.render( scene, camera );
+};
 var animate = function () {
 	requestAnimationFrame( animate );
 
 	cube.rotation.x += 0.01;
 	cube.rotation.y += 0.01;
-
-	renderer.render( scene, camera );
+	render();
 };
 
 animate();
-
+class ColorGUIHelper {
+	  constructor(object, prop) {
+		      this.object = object;
+		      this.prop = prop;
+		    }
+	  get value() {
+		      return `#${this.object[this.prop].getHexString()}`;
+		    }
+	  set value(hexString) {
+		      this.object[this.prop].set(hexString);
+		    }
+}
 window.addEventListener('DOMContentLoaded',() => {
-	let fov_slider = document.getElementById('fov');
-	fov_slider.addEventListener('input', (e) => {
-		camera.fov = fov_slider.value;
+	const datGui  = new dat.GUI({ autoPlace: true });
+	  
+	datGui.domElement.id = 'gui';
+	
+	let folder = datGui.addFolder(`Cube`);
+	
+	folder.addColor(new ColorGUIHelper(material,'color'),'value')
+	  .name('color')
+	  .onChange(render);
+	let fov = folder.add(camera, 'fov', 10, 100);
+	fov.onChange(function(value) {
 		camera.updateProjectionMatrix();
-	});
+	})
 })
 window.addEventListener('resize', () => {
 	renderer.setSize(window.innerWidth, window.innerHeight);
