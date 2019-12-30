@@ -1,12 +1,48 @@
 <html>
 	<head>
+		<meta charset='utf-8'>
 		<title>My first three.js app</title>
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+				background-color: white;
+			}
+			.info {
+				z-index: 100;
+				background-color:black;
+				color:white;
+				position: absolute;
+				top: 50px;
+			}
+			.label-text {
+				z-index:100;
+				color: white;
+				font-size: large;
+				position: absolute;
+			}
 		</style>
 	</head>
 	<body>
-		<script type="module" src="js/test.js"></script>
+		<div id='info'>t = <span id='t'></span></div>
+		<div class='info'>
+			<div>T: <span id='T'></span></div>
+			<div>SMA (a): <span id='a'></span></div>
+			<div>Ecc (e): <span id='e'></span></div>
+			<div>Inc (I): <span id='I'></span></div>
+			<div>Lon (L): <span id='L'></span></div>
+			<div>LoP (wbar): <span id='w'></span></div>
+			<div>LAN: (O) <span id='O'></span></div>
+			<div>E: <span id='E'></span></div>
+			<div>M: <span id='M'></span></div>
+		</div>
+		<div id='labels'></div>
+		<script type="module" src="js/space.js"></script>
 	</body>
 </html>
