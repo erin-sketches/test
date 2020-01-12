@@ -49,6 +49,7 @@ for(let p of ss.planets) {
     planets[p] = pMesh;
     if(p != 'Sun') {
         orbit_data[p] = ss.prop(p,time_arr);
+        // XXX: Figure out how to do the orbit drawing, this causes memory  usage problesm
         //orbit_flat[p] = [];
         //for(let i = 0; i < orbit_data[p].x_pts.length; i++) {
         //    if(i % 200 != 0){
