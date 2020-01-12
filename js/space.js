@@ -2,11 +2,11 @@ import * as THREE from './ext/three.module.js';
 import * as dat from './ext/dat.gui.module.js';
 import {OrbitControls} from './ext/OrbitControls.js';
 import * as ss from './SolarSystem.js';
-
+console.log('test');
 var scene = new THREE.Scene();
 let w_width = window.innerWidth;
 let w_height = window.innerHeight;
-var camera = new THREE.OrthographicCamera(w_width/-2,w_width/2,w_height/2,w_height/-2, 0, 100000 );
+var camera = new THREE.OrthographicCamera(w_width/-2,w_width/2,w_height/2,w_height/-2, 0, 10000000000 );
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -23,10 +23,20 @@ var diam_scale = 5000;
 var dist_scale = 10000000;
 var planets = {};
 var orbits = {};
+var orbit_data = {};
+var orbit_flat = {};
 var labels = {};
 var time = new Date(2000,1);
 var time_ms = time.valueOf();
-var dt = 86400*1000;
+var time_end = new Date(2050,1);
+var time_end_ms = time_end.valueOf();
+var dt = 86400 * 1000;
+var time_arr = [];
+var t = time_ms;
+while(t < time_end_ms) {
+    time_arr.push(new Date(t));
+    t += dt;
+}
 
 for(let p of ss.planets) {
     //let r = ss.radii[p]/diam_scale;
@@ -34,11 +44,24 @@ for(let p of ss.planets) {
     let pGeo = new THREE.SphereGeometry(r,20,20);
     let pMat = new THREE.MeshBasicMaterial({color: ss.color[p]});
     let pMesh = new THREE.Mesh(pGeo,pMat);
+    pMesh.frustrumCulled = false;
     scene.add(pMesh);
     planets[p] = pMesh;
-    let oMat = new THREE.LineBasicMaterial( { color: ss.color[p] } );
     if(p != 'Sun') {
-        let oGeo = new THREE.Geometry();
+        orbit_data[p] = ss.prop(p,time_arr);
+        //orbit_flat[p] = [];
+        //for(let i = 0; i < orbit_data[p].x_pts.length; i++) {
+        //    if(i % 200 != 0){
+        //        continue;
+        //    }
+        //    let x = orbit_data[p].x_pts;
+        //    let y = orbit_data[p].y_pts;
+        //    let z = orbit_data[p].z_pts;
+        //    orbit_flat[p].push(x,y,z);
+        //}
+        let oMat = new THREE.LineBasicMaterial( { color: ss.color[p] } );
+        let oGeo = new THREE.BufferGeometry();
+        //oGeo.setAttribute('position', new THREE.Float32BufferAttribute(orbit_flat[p],3));
         let oLine = new THREE.Line(oGeo,oMat);
         scene.add(oLine);
         orbits[p] = oGeo;
@@ -49,15 +72,18 @@ for(let p of ss.planets) {
     document.getElementById('labels').appendChild(label);
     labels[p] = label;
 }
-function updPlanets(t){
+function updPlanets(idx){
     for(let p of ss.planets) {
         let [x,y,z] = [0,0,0];
         if(p != 'Sun') {
             let pMesh = planets[p];
-            [x,y,z] = ss.calcCoords(p,t);
+            pMesh.frustrumCulled = false;
+            let orb = orbit_data[p];
+            x = orb.x_pts[idx];
+            y = orb.y_pts[idx];
+            z = orb.z_pts[idx];
             //pMesh.position.set(x/dist_scale,y/dist_scale,z/dist_scale);
             pMesh.position.set(x,y,z);
-            orbits[p].vertices.push(new THREE.Vector3(x,y,z));
         }
         let pos = new THREE.Vector3(x,y,z);
         pos.project(camera);
@@ -71,7 +97,7 @@ function updPlanets(t){
         }
     }
 }
-updPlanets(time_ms);
+updPlanets(0);
 planets.Sun.position.set(0,0,0);
 var sun = new THREE.PointLight( 0xffffff, 10);
 sun.add(planets.Sun);
@@ -82,13 +108,13 @@ scene.add( light );
 var render = function () {
 	renderer.render( scene, camera );
 };
+var i = 0;
 var animate = function () {
 	requestAnimationFrame( animate );
     controls.update();
-    time_ms += dt;
-    updPlanets(time_ms);
-    let d = new Date(time_ms);
-    document.getElementById('t').textContent = d.toISOString();
+    i = (i + 1) % time_arr.length;
+    updPlanets(i);
+    document.getElementById('t').textContent = time_arr[i].toISOString();
 	render();
 };
 animate();

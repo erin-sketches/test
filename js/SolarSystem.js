@@ -80,8 +80,30 @@ function sin(deg) {
     let rad = deg * Math.PI / 180.0;
     return 180.0 / Math.PI * Math.sin(rad);
 }
+
+export function prop(planet, times, transform=undefined) {
+    if(transform == undefined) {
+        transform = (d) => {return d};
+    }
+    let x_pts = [];
+    let y_pts = [];
+    let z_pts = [];
+    let t_pts = [];
+    for(let cur_t of times) {
+        let [x,y,z] = calcCoords(planet, cur_t.valueOf());
+        x_pts.push(x);
+        y_pts.push(y);
+        z_pts.push(z);
+    }
+    return {
+            x_pts: x_pts,
+            y_pts: y_pts,
+            z_pts: z_pts,
+            } 
+}
 // OG method https://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf
 export function calcCoords(planet, time_ms) {
+    // Calculate the heliocentric coordinates of the given planet at time_ms.
 
     let t_eph = time_ms / (86400*1000) + 2440587.5; // Not technically correct, but y'know...
     let [a0,e0,I0,L0,wbar0,O0] = keplerianElements[planet].elements;
@@ -115,17 +137,6 @@ export function calcCoords(planet, time_ms) {
     let yprime = a*Math.sqrt(1 - e^2)*sin(E);
     let zprime = 0;
 
-    if (planet == 'Mercury') {
-        document.getElementById('T').textContent = t_eph;
-        document.getElementById('a').textContent = a;
-        document.getElementById('e').textContent = e;
-        document.getElementById('I').textContent = I;
-        document.getElementById('L').textContent = L;
-        document.getElementById('w').textContent = wbar;
-        document.getElementById('O').textContent = O;
-        document.getElementById('E').textContent = E;
-        document.getElementById('M').textContent = M;
-    }
     return [xprime,yprime,zprime];
     //return [xprime*AU,yprime*AU,zprime*AU];
     //// 5. Compute the coords r_ecl in the J2000 ecliptic plane, with the x-axis aligned toward the equinox.
